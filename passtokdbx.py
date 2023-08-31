@@ -69,7 +69,7 @@ def extract_entry_data(entry_data):
         if username is None and fields[0].lower().strip().startswith("user"):
             username = fields[1].strip()
             continue
-        if username is None and fields[0].lower().strip().startswith("mail"):
+        if username is None and fields[0].lower().strip().endswith("mail"):
             username = fields[1].strip()
             continue
         if url is None and fields[0].lower().strip().startswith("url"):
@@ -149,7 +149,7 @@ def get_gpg_fingerprints():
         gpgid = open(pwstore + os.sep + ".gpg-id").readlines()[0].strip()
         gpgkey = search_for_key(gpgid)
         if gpgkey is None:
-            print("unable to find GPG ID")
+            print("Unable to find GPG ID.")
             exit(1)
         pwkeys = [gpgkey.subkeys[0].fpr]
     return pwkeys
@@ -164,6 +164,9 @@ def get_database_password():
     """
     try:
         password = getpass.getpass(prompt="KeePassXC database password: ")
+        if password != getpass.getpass(prompt="Repeat KeePassXC database password to verify: "):
+            print("Passwords do not match.")
+            exit(0)
     except KeyboardInterrupt:
         exit(0)
     except Exception:
@@ -204,8 +207,8 @@ def main():
 
     # get or generate new password for database
     password = get_database_password()
-    location = get_database_location()
-    print(location)
+    # location = get_database_location()
+    # print("create new KeePassXC database:", location)
 
     # create new keepass database and forget password
     db, password = create_database("keepass.kdbx", password), None
